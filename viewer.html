@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .wrapper {
+            margin: 0 auto;
+            padding: 20px;
+            width: 50%;
+            height: 100vh;
+        }
+        iframe {
+            width: 100%;
+            height:  100%;
+        }
+    </style>
+</head>
+<body>
+<script src="./log.js"></script>
+
+<div class="wrapper">
+    <iframe src="http://10.9.26.35:5000/index.html" frameborder="0"></iframe>
+</div>
+<script>
+    const iframe = document.querySelector('iframe').contentDocument
+
+    iframe.body.appendChild(document.createTextNode('111111111111'))
+</script>
+</body>
+</html>

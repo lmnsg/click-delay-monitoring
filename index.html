@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+          content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>点击事件超时监控</title>
     <style>
@@ -11,10 +11,22 @@
             height: 2000px;
             background: red;
         }
+        * {
+            cursor: pointer;
+            margin: 0;
+            padding: 0;
+        }
     </style>
 </head>
 <body>22
-<div>1</div>
+<input name="test" type="radio"> 1
+<select name="" id="">
+    <option value="1">1</option>
+    <option value="2">1</option>
+    <option value="3">1</option>
+</select>
+<div></div>
+<button>222</button>
 <script>
   window.addEventListener('error', function (err) {
     document.write(err.message)
@@ -22,16 +34,6 @@
 </script>
 <script src="./index.js"></script>
 <script>
-  document.querySelector('div').addEventListener('click', (e) => {
-    for (var i = 0; i < 4000; i ++) {
-      console.log(i)
-    }
-    console.log('----1')
-    setTimeout(() => {
-      document.body.insertBefore(document.createTextNode(Math.random() * 100), document.querySelector('div'))
-
-    }, 0)
-  })
 </script>
 </body>
 </html>

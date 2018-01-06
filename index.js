@@ -1,7 +1,5 @@
-let start = 0
-let timer = null
-let log = {}
-const filter = ['body','select', 'input']
+const timers = []
+const filter = ['body', 'select', 'input']
 const maxDelay = 1000
 
 let delay = 200
@@ -9,52 +7,46 @@ let requestUrl = ''
 
 const isIos = !!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
 
-function post(body) {
-  console.log(JSON.stringify(body))
+function post (body) {
   return window.fetch(requestUrl, {
     method: 'post',
     body: JSON.stringify(body)
   })
 }
 
-function report(log) {
-  if (!log.time) log.time = maxDelay
+function report (log) {
   post(log)
-  clean()
 }
 
-function clean() {
-  start = 0
-  log = {}
-  clearTimeout(timer)
+function clean () {
+  timers.length = 0
 }
 
-function hackSafari() {
+function hackSafari () {
   const style = document.createElement('style')
   style.appendChild(document.createTextNode('body { cursor: pointer }'))
   document.head.appendChild(style)
 }
 
-function observerCb() {
-  if (!start) return
+function observerCb () {
+  if (!timers.length) return
+  const now = performance.now()
 
-  // 点击触发后第一次 dom 变化消耗的时间
-  const time = log.time = performance.now() - start
-
+  const {timer, start, log} = timers.shift()
+  const time = log.time = now - start
   if (time > delay) {
     report(log)
-  } else {
-    clean()
   }
+  clearTimeout(timer)
 }
 
-function capture(e) {
-  const { pageX, pageY, target, target: { tagName, name, className, id, textContent } } = e
+function capture (e) {
+  const {pageX, pageY, target, target: {tagName, name, className, id, textContent}} = e
   const lowerTagName = tagName.toLowerCase()
   if (filter.includes(lowerTagName)) return
 
-  start = performance.now()
-  Object.assign(log, {
+  const start = performance.now()
+  const log = {
     pageX,
     pageY,
     tagName: lowerTagName,
@@ -63,21 +55,32 @@ function capture(e) {
     id,
     textContent: textContent.substr(0, 10),
     url: location.href
-  })
-
+  }
+  const task = new Task({log, start})
   // 1s 未发生 dom 变化则自动上报
-  timer = setTimeout(() => report(log), maxDelay)
+  timers.push(task)
 }
 
-function monitoring() {
+function monitoring () {
   const rootEl = document.documentElement
   const observer = new MutationObserver(observerCb)
 
   // hack: ios 无法对未监听过 click 事件的非原生可点击元素进行事件委托
   if (isIos) hackSafari()
 
-  observer.observe(rootEl, { childList: true, attributes: true, subtree: true })
+  observer.observe(rootEl, {childList: true, attributes: true, subtree: true})
   rootEl.addEventListener('click', capture, true)
 }
 
 monitoring()
+
+class Task {
+  constructor ({log, start}) {
+    this.timer = setTimeout(() => {
+      report(this.log)
+      timers.splice(timers.findIndex(task => task === this), 1)
+    }, maxDelay)
+    this.log = log
+    this.start = start
+  }
+}
